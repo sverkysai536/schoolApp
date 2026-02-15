@@ -1,0 +1,57 @@
+.wrapper {
+    position: relative;
+    margin-bottom: 1rem;
+}
+
+.label {
+    position: absolute;
+    left: 1rem;
+    top: 1rem;
+    font-size: 1rem;
+    color: var(--muted-foreground);
+    transition: all 0.2s ease-out;
+    pointer-events: none;
+    background: transparent;
+    padding: 0 0.25rem;
+}
+
+.input {
+    width: 100%;
+    padding: 1.5rem 1rem 0.5rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--foreground);
+    font-size: 1rem;
+    outline: none;
+    transition: all 0.2s;
+}
+
+.input:focus {
+    border-color: var(--ring);
+    background: rgba(255, 255, 255, 0.05);
+    box-shadow: 0 0 0 1px var(--ring);
+}
+
+.input:focus~.label,
+.input:not(:placeholder-shown)~.label {
+    top: 0.25rem;
+    left: 0.75rem;
+    font-size: 0.75rem;
+    color: var(--primary);
+}
+
+.errorInput {
+    border-color: var(--destructive);
+}
+
+.errorInput:focus {
+    border-color: var(--destructive);
+    box-shadow: 0 0 0 1px var(--destructive);
+}
+
+.errorMessage {
+    margin-top: 0.25rem;
+    font-size: 0.75rem;
+    color: var(--destructive);
+}
