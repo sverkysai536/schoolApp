@@ -9,7 +9,7 @@ export default function AdminDashboard() {
         <div>
             <h1 className="text-2xl font-bold mb-6">Admin Dashboard</h1>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <Card glass className="bg-black/60 border-white/10">
+                <Card glass className="border-white/10">
                     <CardHeader>
                         <CardTitle className="text-white">Manage Users</CardTitle>
                     </CardHeader>
@@ -20,7 +20,7 @@ export default function AdminDashboard() {
                         </Link>
                     </CardContent>
                 </Card>
-                <Card glass className="bg-black/60 border-white/10">
+                <Card glass className="border-white/10">
                     <CardHeader>
                         <CardTitle className="text-white">Classes</CardTitle>
                     </CardHeader>
@@ -31,13 +31,15 @@ export default function AdminDashboard() {
                         </Link>
                     </CardContent>
                 </Card>
-                <Card glass className="bg-black/60 border-white/10">
+                <Card glass className="border-white/10">
                     <CardHeader>
                         <CardTitle className="text-white">Fees</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <p className="mb-4 text-sm text-gray-300">Post fee structures and dues.</p>
-                        <Button variant="secondary" className="w-full bg-white/10 hover:bg-white/20 text-white border-white/10">Manage Fees</Button>
+                        <Link href="/dashboard/admin/fees">
+                            <Button variant="secondary" className="w-full bg-white/10 hover:bg-white/20 text-white border-white/10">Manage Fees</Button>
+                        </Link>
                     </CardContent>
                 </Card>
             </div>

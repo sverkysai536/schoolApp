@@ -1,9 +1,10 @@
 .card {
-    background: rgba(255, 255, 255, 0.1);
-    /* Fallback */
+    background: #000000;
+    /* Black background */
     border-radius: 1rem;
     overflow: hidden;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
 }
 
 .glass {

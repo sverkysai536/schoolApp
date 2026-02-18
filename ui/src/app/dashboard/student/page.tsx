@@ -2,6 +2,7 @@
 import React from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import Link from "next/link";
 
 export default function StudentDashboard() {
     return (
@@ -14,7 +15,9 @@ export default function StudentDashboard() {
                     </CardHeader>
                     <CardContent>
                         <p className="mb-4 text-sm text-gray-500">View your latest grades and feedback.</p>
-                        <Button>View Grades</Button>
+                        <Link href="/dashboard/student/grades">
+                            <Button className="w-full">View Grades</Button>
+                        </Link>
                     </CardContent>
                 </Card>
                 <Card>
@@ -23,7 +26,9 @@ export default function StudentDashboard() {
                     </CardHeader>
                     <CardContent>
                         <p className="mb-4 text-sm text-gray-500">Check due dates and submit work.</p>
-                        <Button variant="secondary">View Assignments</Button>
+                        <Link href="/dashboard/student/assignments">
+                            <Button variant="secondary" className="w-full">View Assignments</Button>
+                        </Link>
                     </CardContent>
                 </Card>
                 <Card>
@@ -32,7 +37,9 @@ export default function StudentDashboard() {
                     </CardHeader>
                     <CardContent>
                         <p className="mb-4 text-sm text-gray-500">See class notifications and ask questions.</p>
-                        <Button variant="secondary">Go to Board</Button>
+                        <Link href="/dashboard/student/board">
+                            <Button variant="secondary" className="w-full">Go to Board</Button>
+                        </Link>
                     </CardContent>
                 </Card>
             </div>

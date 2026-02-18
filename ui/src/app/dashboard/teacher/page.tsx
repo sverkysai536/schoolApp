@@ -2,6 +2,7 @@
 import React from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import Link from "next/link";
 
 export default function TeacherDashboard() {
     return (
@@ -32,7 +33,18 @@ export default function TeacherDashboard() {
                     </CardHeader>
                     <CardContent>
                         <p className="mb-4 text-sm text-gray-500">Post updates to students and parents.</p>
-                        <Button variant="secondary">Post Notification</Button>
+                        <Button variant="secondary" onClick={() => window.location.href = '/dashboard/teacher/notifications'}>Post Notification</Button>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Gradebook</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="mb-4 text-sm text-gray-500">Grade assignments and provide feedback.</p>
+                        <Link href="/dashboard/teacher/grades">
+                            <Button variant="secondary" className="w-full">Manage Grades</Button>
+                        </Link>
                     </CardContent>
                 </Card>
             </div>

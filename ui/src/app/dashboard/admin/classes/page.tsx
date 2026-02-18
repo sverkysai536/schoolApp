@@ -81,7 +81,7 @@ export default function AdminClassesPage() {
             <h1 className="text-2xl font-bold mb-6 text-white">Manage Classes</h1>
 
             {/* Create Class Section */}
-            <Card className="mb-8 bg-black/60 border-white/10" glass>
+            <Card className="mb-8 border-white/10" glass>
                 <CardContent className="p-6 flex gap-4 items-end">
                     <div className="flex-1">
                         <label className="block text-sm font-medium mb-1 text-gray-200">New Class Name</label>
@@ -101,7 +101,7 @@ export default function AdminClassesPage() {
             {/* Classes List */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {classes.map((cls) => (
-                    <Card key={cls.pk} className="bg-black/60 border-white/10 hover:bg-black/70 transition-colors" glass>
+                    <Card key={cls.pk} className="border-white/10 hover:bg-black/70 transition-colors" glass>
                         <CardHeader className="flex flex-row items-center justify-between pb-2">
                             <CardTitle className="text-xl text-white">{cls.name}</CardTitle>
                             <div className="flex gap-2">

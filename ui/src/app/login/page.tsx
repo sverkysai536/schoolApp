@@ -25,6 +25,7 @@ export default function LoginPage() {
             const data = await login(username, password);
             localStorage.setItem("token", data.access_token);
             localStorage.setItem("role", data.role);
+            localStorage.setItem("username", username);
 
             // Redirect based on role
             let targetRole = data.role;
@@ -55,7 +56,8 @@ export default function LoginPage() {
             <div className="absolute inset-0 bg-black/40 z-10" />
 
             {/* Login Card */}
-            <Card className="relative z-50 w-full max-w-md border-white/20 shadow-2xl bg-gray-900/95 backdrop-blur-md" glass>
+            {/* Login Card */}
+            <Card className="relative z-50 w-full max-w-md border-white/20 shadow-2xl" style={{ backgroundColor: 'rgba(0, 0, 0, 0.85)', backdropFilter: 'blur(12px)' }}>
                 <CardHeader className="text-center">
                     <CardTitle className="text-4xl mb-2 text-white drop-shadow-lg" style={{ color: 'white' }}>Vikas School</CardTitle>
                     <p className="text-gray-300">Welcome back! Please sign in.</p>
