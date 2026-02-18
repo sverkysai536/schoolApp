@@ -169,3 +169,114 @@ async def assign_subject_teacher(pk: str, subject_name: str, update: SubjectTeac
         return cls
     except:
         raise HTTPException(status_code=404, detail="Class not found")
+
+# Fee Management
+from models import FeeStructure, StudentFee
+
+class FeeStructureCreate(BaseModel):
+    class_id: str
+    amount: float
+    academic_year: str
+    due_date: str # ISO format
+
+@router.get("/fee-structures", response_model=List[FeeStructure])
+async def list_fee_structures():
+    # Manual fetch
+    fees = []
+    for pk in FeeStructure.all_pks():
+        try:
+            fees.append(FeeStructure.get(pk))
+        except:
+            pass
+    return fees
+
+@router.post("/fee-structures", response_model=FeeStructure)
+async def create_fee_structure(fs: FeeStructureCreate):
+    # Check if exists for class/year? For now just overwrite or create new
+    # ID can be class_id_year
+    pk = f"{fs.class_id}_{fs.academic_year}"
+    new_fs = FeeStructure(
+        pk=pk,
+        class_id=fs.class_id,
+        amount=fs.amount,
+        academic_year=fs.academic_year,
+        due_date=datetime.datetime.fromisoformat(fs.due_date.replace("Z", "+00:00"))
+    )
+    new_fs.save()
+    
+    # Also, we should probably generate StudentFee records for all students in this class if they don't exist
+    # Fetch all students in class
+    all_users = User.all_pks()
+    for user_pk in all_users:
+        try:
+            user = User.get(user_pk)
+            if user.role == Role.STUDENT and user.class_id == fs.class_id:
+                # Check if StudentFee exists
+                sf_pk = f"{user.pk}_{fs.academic_year}"
+                try:
+                    StudentFee.get(sf_pk)
+                except:
+                    # Create
+                    StudentFee(
+                        pk=sf_pk,
+                        student_id=user.pk,
+                        class_id=fs.class_id,
+                        base_amount=fs.amount,
+                        final_amount=fs.amount, # Initial
+                        due_date=new_fs.due_date
+                    ).save()
+        except:
+            pass
+
+    return new_fs
+
+@router.get("/classes/{class_id}/fees", response_model=List[StudentFee])
+async def list_class_student_fees(class_id: str):
+    # Fetch all student fees for this class
+    # Manual filter
+    fees = []
+    for pk in StudentFee.all_pks():
+        try:
+            sf = StudentFee.get(pk)
+            if sf.class_id == class_id:
+                fees.append(sf)
+        except:
+            pass
+    return fees
+
+class StudentFeeUpdate(BaseModel):
+    pk: Optional[str] = None
+    student_id: Optional[str] = None
+    academic_year: str = "2025-2026"
+    paid_amount: Optional[float] = None
+    discount_amount: Optional[float] = None
+
+@router.put("/student-fees")
+async def update_student_fee(update: StudentFeeUpdate):
+    if update.pk:
+        pk = update.pk
+    else:
+        pk = f"{update.student_id}_{update.academic_year}"
+        
+    try:
+        sf = StudentFee.get(pk)
+        if update.paid_amount is not None:
+            sf.paid_amount = update.paid_amount
+        
+        if update.discount_amount is not None:
+            sf.discount_amount = update.discount_amount
+            sf.final_amount = sf.base_amount - sf.discount_amount
+        
+        # Update status
+        if sf.paid_amount >= sf.final_amount:
+            sf.status = "paid"
+        elif sf.paid_amount > 0:
+            sf.status = "partial"
+        else:
+            sf.status = "pending"
+            # overdue check?
+            
+        sf.save()
+        return sf
+    except:
+        raise HTTPException(status_code=404, detail="Student fee record not found")

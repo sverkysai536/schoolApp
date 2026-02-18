@@ -60,3 +60,21 @@ class Notification(HashModel):
     recipient_id: Optional[str] = Field(default=None, index=True) # Specific user
     class_id: Optional[str] = Field(default=None, index=True) # Specific class
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
+
+class FeeStructure(HashModel):
+    class_id: str = Field(index=True)
+    amount: float
+    academic_year: str = Field(index=True) # e.g. "2025-2026"
+    due_date: datetime.datetime
+    created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
+
+class StudentFee(HashModel):
+    student_id: str = Field(index=True)
+    class_id: str = Field(index=True)
+    base_amount: float # Copied from FeeStructure
+    discount_amount: float = 0.0
+    final_amount: float # base - discount
+    paid_amount: float = 0.0
+    status: str = Field(index=True, default="pending") # pending, partial, paid, overdue
+    due_date: datetime.datetime
+    last_updated: datetime.datetime = Field(default_factory=datetime.datetime.now)

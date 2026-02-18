@@ -10,8 +10,46 @@ async def list_assignments(student_id: str): # Get from token
     student = User.get(student_id)
     if not student or not student.class_id:
         return []
-    return Assignment.find(Assignment.class_id == student.class_id).all()
+    # return Assignment.find(Assignment.class_id == student.class_id).all()
+    assignments = []
+    all_pks = Assignment.all_pks()
+    for pk in all_pks:
+        try:
+            a = Assignment.get(pk)
+            if a.class_id == student.class_id:
+                assignments.append(a)
+        except:
+             pass
+    return assignments
 
 @router.get("/grades", response_model=List[Grade])
 async def list_grades(student_id: str): # Get from token
-    return Grade.find(Grade.student_id == student_id).all()
+    # return Grade.find(Grade.student_id == student_id).all()
+    grades = []
+    all_pks = Grade.all_pks()
+    for pk in all_pks:
+        try:
+            g = Grade.get(pk)
+            if g.student_id == student_id:
+                grades.append(g)
+        except:
+             pass
+    return grades
+
+@router.get("/notifications")
+async def list_notifications(student_id: str):
+    student = User.get(student_id)
+    if not student or not student.class_id:
+        return []
+
+    from models import Notification
+    notifications = []
+    all_pks = Notification.all_pks()
+    for pk in all_pks:
+        try:
+            n = Notification.get(pk)
+            if n.class_id == student.class_id:
+                notifications.append(n)
+        except:
+             pass
+    return sorted(notifications, key=lambda x: x.created_at, reverse=True)

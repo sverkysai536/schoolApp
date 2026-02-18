@@ -13,7 +13,7 @@ def patched_check_for_command(conn, cmd):
 
 redis_om.checks.check_for_command = patched_check_for_command
 
-from routers import auth, admin, teacher, student, parent, class_teacher, messages
+from routers import auth, admin, teacher, student, parent, class_teacher, messages, fees
 import os
 
 app = FastAPI(title="Vikas School App API", version="1.0.0")
@@ -40,6 +40,7 @@ app.include_router(student.router)
 app.include_router(parent.router)
 app.include_router(class_teacher.router)
 app.include_router(messages.router)
+app.include_router(fees.router)
 
 @app.get("/")
 async def root():

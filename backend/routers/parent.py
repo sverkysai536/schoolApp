@@ -25,8 +25,90 @@ async def list_children(parent_id: str): # Get from token
 async def view_child_grades(parent_id: str, child_id: str):
     # Verify parent owns child
     parent = User.get(parent_id)
-    children_ids = parent.children_ids.split(",") if parent.children_ids else []
+    children_ids = [cid.strip() for cid in (parent.children_ids.split(",") if parent.children_ids else [])]
     if child_id not in children_ids:
         raise HTTPException(status_code=403, detail="Not authorized to view this child")
     
-    return Grade.find(Grade.student_id == child_id).all()
+    # return Grade.find(Grade.student_id == child_id).all()
+    grades = []
+    all_pks = Grade.all_pks()
+    for pk in all_pks:
+        try:
+            g = Grade.get(pk)
+            if g.student_id == child_id:
+                grades.append(g)
+        except:
+             pass
+    return grades
+
+@router.get("/children/{child_id}/fees")
+async def view_child_fees(parent_id: str, child_id: str):
+    # Verify parent
+    parent = User.get(parent_id)
+    children_ids = [cid.strip() for cid in (parent.children_ids.split(",") if parent.children_ids else [])]
+    if child_id not in children_ids:
+        raise HTTPException(status_code=403, detail="Not authorized")
+        
+    from models import StudentFee
+    fees = []
+    for pk in StudentFee.all_pks():
+        try:
+            sf = StudentFee.get(pk)
+            if sf.student_id == child_id:
+                fees.append(sf)
+        except:
+            pass
+    return fees
+
+@router.get("/children/{child_id}/notifications")
+async def view_child_notifications(parent_id: str, child_id: str):
+    # Verify parent
+    parent = User.get(parent_id)
+    children_ids = [cid.strip() for cid in (parent.children_ids.split(",") if parent.children_ids else [])]
+    if child_id not in children_ids:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    try:
+        child = User.get(child_id)
+        if not child.class_id:
+            return []
+            
+        from models import Notification
+        notifications = []
+        for pk in Notification.all_pks():
+            try:
+                n = Notification.get(pk)
+                # Match by class_id or specific recipient_id (future proofing)
+                if n.class_id == child.class_id:
+                    notifications.append(n)
+            except:
+                pass
+        return sorted(notifications, key=lambda x: x.created_at, reverse=True)
+    except:
+        return []
+
+@router.get("/children/{child_id}/assignments", response_model=List[Assignment])
+async def view_child_assignments(parent_id: str, child_id: str):
+    # Verify parent
+    parent = User.get(parent_id)
+    children_ids = [cid.strip() for cid in (parent.children_ids.split(",") if parent.children_ids else [])]
+    if child_id not in children_ids:
+        raise HTTPException(status_code=403, detail="Not authorized")
+        
+    try:
+        child = User.get(child_id)
+        if not child.class_id:
+            return []
+            
+        assignments = []
+        # Manual filter
+        for pk in Assignment.all_pks():
+            try:
+                a = Assignment.get(pk)
+                if a.class_id == child.class_id:
+                    assignments.append(a)
+            except:
+                pass
+        return sorted(assignments, key=lambda x: x.due_date)
+    except:
+        return []
