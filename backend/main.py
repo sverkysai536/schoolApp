@@ -15,8 +15,14 @@ redis_om.checks.check_for_command = patched_check_for_command
 
 from routers import auth, admin, teacher, student, parent, class_teacher, messages, fees
 import os
+from fastapi.staticfiles import StaticFiles
 
 app = FastAPI(title="Vikas School App API", version="1.0.0")
+
+# Mount uploads directory
+if not os.path.exists("uploads"):
+    os.makedirs("uploads")
+app.mount("/static", StaticFiles(directory="uploads"), name="static")
 
 # CORS Configuration
 origins = [

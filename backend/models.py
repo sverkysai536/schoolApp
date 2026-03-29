@@ -43,6 +43,8 @@ class Assignment(HashModel):
     due_date: datetime.datetime
     class_id: str = Field(index=True)
     teacher_id: str = Field(index=True)
+    file_url: Optional[str] = None
+    file_name: Optional[str] = None
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
 
 class Grade(HashModel):
@@ -59,6 +61,9 @@ class Notification(HashModel):
     recipient_role: Optional[Role] = Field(default=None, index=True) # e.g. "student" (all students)
     recipient_id: Optional[str] = Field(default=None, index=True) # Specific user
     class_id: Optional[str] = Field(default=None, index=True) # Specific class
+    image_url: Optional[str] = None
+    file_url: Optional[str] = None
+    file_name: Optional[str] = None
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
 
 class FeeStructure(HashModel):
