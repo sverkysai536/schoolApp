@@ -39,7 +39,7 @@ async def list_grades(student_id: str): # Get from token
 @router.get("/notifications")
 async def list_notifications(student_id: str):
     student = User.get(student_id)
-    if not student or not student.class_id:
+    if not student:
         return []
 
     from models import Notification
@@ -48,7 +48,11 @@ async def list_notifications(student_id: str):
     for pk in all_pks:
         try:
             n = Notification.get(pk)
-            if n.class_id == student.class_id:
+            # Show if:
+            # 1. Matches student's class
+            # 2. Is school-wide (no class_id and no specific recipient_id)
+            # 3. Dedicated to student specifically (recipient_id matches)
+            if n.class_id == student.class_id or (not n.class_id and not n.recipient_id) or n.recipient_id == student.pk:
                 notifications.append(n)
         except:
              pass

@@ -70,16 +70,19 @@ async def view_child_notifications(parent_id: str, child_id: str):
     
     try:
         child = User.get(child_id)
-        if not child.class_id:
-            return []
+        # child.class_id might be None, but we still want school-wide posts
             
         from models import Notification
         notifications = []
         for pk in Notification.all_pks():
             try:
                 n = Notification.get(pk)
-                # Match by class_id or specific recipient_id (future proofing)
-                if n.class_id == child.class_id:
+                # Show if matches class OR is school-wide OR is for child specifically
+                is_class_match = child.class_id and n.class_id == child.class_id
+                is_global = not n.class_id and not n.recipient_id
+                is_specific = n.recipient_id == child_id
+                
+                if is_class_match or is_global or is_specific:
                     notifications.append(n)
             except:
                 pass

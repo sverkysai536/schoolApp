@@ -115,6 +115,9 @@ async def get_class_grades(current_user: User = Depends(get_current_user)):
 class ForumPost(BaseModel):
     title: str
     message: str
+    image_url: Optional[str] = None
+    file_url: Optional[str] = None
+    file_name: Optional[str] = None
 
 @router.post("/forum")
 async def post_to_forum(post: ForumPost, current_user: User = Depends(get_current_user)):
@@ -127,7 +130,10 @@ async def post_to_forum(post: ForumPost, current_user: User = Depends(get_curren
         message=post.message,
         sender_id=current_user.pk,
         recipient_role=None, # Sent to everyone/school forum
-        class_id=None # Global/School level
+        class_id=None, # Global/School level
+        image_url=post.image_url,
+        file_url=post.file_url,
+        file_name=post.file_name
     )
     new_notification.save()
     return {"message": "Posted to forum successfully"}

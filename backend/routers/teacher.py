@@ -1,9 +1,12 @@
-from fastapi import APIRouter, Depends, HTTPException
-from models import User, Role, Class, Assignment, Grade
+from fastapi import APIRouter, Depends, HTTPException, File, UploadFile
+from models import User, Role, Class, Assignment, Grade, Notification
 from auth import get_password_hash, get_current_user
 from typing import List, Optional
 from pydantic import BaseModel
 import datetime
+import shutil
+import os
+import uuid
 
 router = APIRouter(prefix="/teacher", tags=["Teacher"])
 
@@ -12,6 +15,26 @@ class AssignmentCreate(BaseModel):
     description: str
     due_date: datetime.datetime
     class_id: str
+    file_url: Optional[str] = None
+    file_name: Optional[str] = None
+
+UPLOAD_DIR = "uploads"
+if not os.path.exists(UPLOAD_DIR):
+    os.makedirs(UPLOAD_DIR)
+
+@router.post("/upload")
+async def upload_file(file: UploadFile = File(...), current_user: User = Depends(get_current_user)):
+    if current_user.role != Role.TEACHER and current_user.role != Role.CLASS_TEACHER:
+        raise HTTPException(status_code=403, detail="Only teachers can upload files")
+    
+    file_ext = os.path.splitext(file.filename)[1]
+    unique_filename = f"{uuid.uuid4()}{file_ext}"
+    file_path = os.path.join(UPLOAD_DIR, unique_filename)
+    
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+    
+    return {"file_url": f"http://localhost:8000/static/{unique_filename}", "file_name": file.filename}
 
 @router.post("/assignments", response_model=Assignment)
 async def create_assignment(assignment: AssignmentCreate, current_user: User = Depends(get_current_user)):
@@ -24,7 +47,9 @@ async def create_assignment(assignment: AssignmentCreate, current_user: User = D
         description=assignment.description,
         due_date=assignment.due_date,
         class_id=assignment.class_id,
-        teacher_id=current_user.pk
+        teacher_id=current_user.pk,
+        file_url=assignment.file_url,
+        file_name=assignment.file_name
     )
     new_assignment.save()
     return new_assignment
@@ -113,25 +138,30 @@ class NotificationCreate(BaseModel):
     title: str
     message: str
     class_id: str
+    image_url: Optional[str] = None
+    file_url: Optional[str] = None
+    file_name: Optional[str] = None
 
-@router.post("/notifications", response_model=dict)
-async def post_notification(notification: NotificationCreate, current_user: User = Depends(get_current_user)):
+@router.post("/notifications", response_model=Notification)
+async def create_notification(notification: NotificationCreate, current_user: User = Depends(get_current_user)):
     # Verify teacher teaches this class (basic check)
     # In real app, we should check Relation or SubjectTeacher logic
     # For now, let's assume if they have the ID, they can post (or check if they are a teacher)
-    if current_user.role != Role.TEACHER and current_user.role != Role.CLASS_TEACHER:
-         raise HTTPException(status_code=403, detail="Only teachers can post notifications")
-
-    from models import Notification
-    new_notif = Notification(
+    if current_user.role != Role.TEACHER:
+        raise HTTPException(status_code=403, detail="Not a teacher")
+    
+    new_notification = Notification(
         title=notification.title,
         message=notification.message,
         sender_id=current_user.pk,
         class_id=notification.class_id,
-        recipient_role=None # To everyone in class
+        recipient_role=Role.STUDENT, # Typically notifications in class go to students/parents
+        image_url=notification.image_url,
+        file_url=notification.file_url,
+        file_name=notification.file_name
     )
-    new_notif.save()
-    return {"message": "Notification posted successfully"}
+    new_notification.save()
+    return new_notification
 
 @router.get("/classes", response_model=List[Class])
 async def get_teacher_classes(current_user: User = Depends(get_current_user)):
